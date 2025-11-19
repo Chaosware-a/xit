@@ -1,210 +1,144 @@
---== PAINEL VERMELHO - GUI COMPLETA SEM LÓGICA ==--
+--== PAINEL VERMELHO (SEM LÓGICA) ==--
 
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
+-- Criar ScreenGui
 local gui = Instance.new("ScreenGui")
-gui.Name = "PainelVermelho"
-gui.Parent = player:WaitForChild("PlayerGui")
+gui.Name = "RedMenu"
+gui.ResetOnSpawn = false
+gui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
--- JANELA PRINCIPAL
+-- Criar Frame principal
 local main = Instance.new("Frame")
-main.Size = UDim2.new(0, 500, 0, 300)
-main.Position = UDim2.new(0.5, -250, 0.5, -150)
+main.Name = "Main"
+main.Size = UDim2.new(0, 380, 0, 300)
+main.Position = UDim2.new(0.2, 0, 0.2, 0)
 main.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
 main.BorderSizePixel = 0
 main.Parent = gui
 
-local UICorner = Instance.new("UICorner", main)
-UICorner.CornerRadius = UDim.new(0, 6)
+-- Cantos arredondados
+local uiCorner = Instance.new("UICorner", main)
+uiCorner.CornerRadius = UDim.new(0, 12)
 
--- ABA CONTAINER
-local tabs = Instance.new("Frame")
-tabs.Size = UDim2.new(1, 0, 0, 35)
-tabs.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
-tabs.BorderSizePixel = 0
-tabs.Parent = main
+-- Barra superior
+local top = Instance.new("Frame")
+top.Name = "TopBar"
+top.Size = UDim2.new(1, 0, 0, 30)
+top.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+top.BorderSizePixel = 0
+top.Parent = main
 
-local tabLayout = Instance.new("UIListLayout", tabs)
-tabLayout.FillDirection = Enum.FillDirection.Horizontal
-tabLayout.Padding = UDim.new(0, 5)
+Instance.new("UICorner", top).CornerRadius = UDim.new(0, 10)
 
--- FUNÇÃO PARA CRIAR BOTÕES DE ABA
-local function createTabButton(name)
-    local b = Instance.new("TextButton")
-    b.Size = UDim2.new(0, 160, 1, 0)
-    b.BackgroundColor3 = Color3.fromRGB(120, 0, 0)
-    b.TextColor3 = Color3.fromRGB(255,255,255)
-    b.Text = name
-    b.Parent = tabs
-    local c = Instance.new("UICorner", b)
-    c.CornerRadius = UDim.new(0,4)
-    return b
+-- Título
+local title = Instance.new("TextLabel")
+title.Text = "PAINEL NECESSARY4CODE"
+title.Size = UDim2.new(1, 0, 1, 0)
+title.BackgroundTransparency = 1
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.GothamBold
+title.TextScaled = true
+title.Parent = top
+
+-- Aba lateral
+local side = Instance.new("Frame")
+side.Name = "SideBar"
+side.Size = UDim2.new(0, 95, 1, -30)
+side.Position = UDim2.new(0, 0, 0, 30)
+side.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
+side.BorderSizePixel = 0
+side.Parent = main
+Instance.new("UICorner", side).CornerRadius = UDim.new(0, 12)
+
+-- Função para criar botões das abas
+local function createTabButton(name, order)
+    local btn = Instance.new("TextButton")
+    btn.Text = name
+    btn.Size = UDim2.new(1, 0, 0, 40)
+    btn.Position = UDim2.new(0, 0, 0, (order - 1) * 45)
+    btn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+    btn.TextColor3 = Color3.new(1, 1, 1)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextScaled = true
+    btn.Parent = side
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 10)
+    return btn
 end
 
--- CRIAR ABAS
-local tabAimbot = createTabButton("Aimbot")
-local tabFOV = createTabButton("FOV")
-local tabESP = createTabButton("ESP")
+local btnAimbot = createTabButton("Aimbot", 1)
+local btnFOV = createTabButton("FOV", 2)
+local btnESP = createTabButton("ESP", 3)
 
--- CONTEÚDO DAS ABAS
-local function createPage()
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(1, -20, 1, -55)
-    frame.Position = UDim2.new(0, 10, 0, 45)
-    frame.BackgroundColor3 = Color3.fromRGB(70, 0, 0)
-    frame.Visible = false
-    frame.Parent = main
+-- Área de conteúdo
+local content = Instance.new("Frame")
+content.Name = "Content"
+content.Size = UDim2.new(1, -95, 1, -30)
+content.Position = UDim2.new(0, 95, 0, 30)
+content.BackgroundColor3 = Color3.fromRGB(120, 0, 0)
+content.BorderSizePixel = 0
+content.Parent = main
+Instance.new("UICorner", content).CornerRadius = UDim.new(0, 12)
 
-    local c = Instance.new("UICorner", frame)
-    c.CornerRadius = UDim.new(0, 5)
-
-    return frame
+-- Função para criar páginas
+local function createPage(name)
+    local page = Instance.new("Frame")
+    page.Name = name
+    page.Size = UDim2.new(1, 0, 1, 0)
+    page.BackgroundTransparency = 1
+    page.Visible = false
+    page.Parent = content
+    return page
 end
 
-local pageAimbot = createPage()
-local pageFOV = createPage()
-local pageESP = createPage()
+local pageAimbot = createPage("Aimbot")
+local pageFOV = createPage("FOV")
+local pageESP = createPage("ESP")
 
--- Mostrar página certa
-local function openPage(pg)
+-- Mostrar aba
+local function showPage(page)
     pageAimbot.Visible = false
     pageFOV.Visible = false
     pageESP.Visible = false
-    pg.Visible = true
+    page.Visible = true
 end
 
-tabAimbot.MouseButton1Click:Connect(function() openPage(pageAimbot) end)
-tabFOV.MouseButton1Click:Connect(function() openPage(pageFOV) end)
-tabESP.MouseButton1Click:Connect(function() openPage(pageESP) end)
+btnAimbot.MouseButton1Click:Connect(function() showPage(pageAimbot) end)
+btnFOV.MouseButton1Click:Connect(function() showPage(pageFOV) end)
+btnESP.MouseButton1Click:Connect(function() showPage(pageESP) end)
 
-pageAimbot.Visible = true -- A aba inicial será AIMBOT
+-- Mostrar Aimbot ao abrir
+showPage(pageAimbot)
 
--- FUNÇÃO PARA CRIAR TOGGLES
-local function createToggle(parent, text)
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(1, -20, 0, 30)
-    frame.BackgroundTransparency = 1
-    frame.Parent = parent
-
-    local lbl = Instance.new("TextLabel", frame)
-    lbl.Size = UDim2.new(0.7, 0, 1, 0)
+-- Criar textos dentro das seções
+local function addLabel(parent, text, offset)
+    local lbl = Instance.new("TextLabel")
     lbl.Text = text
-    lbl.TextColor3 = Color3.fromRGB(255,255,255)
+    lbl.Size = UDim2.new(1, -20, 0, 30)
+    lbl.Position = UDim2.new(0, 10, 0, offset)
     lbl.BackgroundTransparency = 1
-    lbl.TextXAlignment = Enum.TextXAlignment.Left
-
-    local btn = Instance.new("TextButton", frame)
-    btn.Size = UDim2.new(0.3, 0, 1, 0)
-    btn.Position = UDim2.new(0.7, 0, 0, 0)
-    btn.Text = "OFF"
-    btn.BackgroundColor3 = Color3.fromRGB(120,0,0)
-    btn.TextColor3 = Color3.fromRGB(255,255,255)
-
-    local c = Instance.new("UICorner", btn)
-    c.CornerRadius = UDim.new(0, 4)
-
-    local state = false
-    btn.MouseButton1Click:Connect(function()
-        state = not state
-        btn.Text = state and "ON" or "OFF"
-        btn.BackgroundColor3 = state and Color3.fromRGB(200,0,0) or Color3.fromRGB(120,0,0)
-    end)
+    lbl.TextColor3 = Color3.new(1, 1, 1)
+    lbl.Font = Enum.Font.GothamBold
+    lbl.TextScaled = true
+    lbl.Parent = parent
 end
 
--- ======================================================================
--- ABA AIMBOT
--- ======================================================================
-local listAimbot = Instance.new("UIListLayout", pageAimbot)
-listAimbot.Padding = UDim.new(0,5)
+-- Aimbot
+addLabel(pageAimbot, "AIMBOT (sem lógica ainda)", 20)
+addLabel(pageAimbot, "- Ativar", 60)
+addLabel(pageAimbot, "- Mira na cabeça", 100)
+addLabel(pageAimbot, "- Mira no torso", 140)
 
-createToggle(pageAimbot, "Enable Aimbot")
+-- FOV
+addLabel(pageFOV, "FOV (sem lógica)", 20)
+addLabel(pageFOV, "- Círculo FOV", 60)
+addLabel(pageFOV, "- Tamanho FOV", 100)
+addLabel(pageFOV, "- Cor do FOV", 140)
 
--- Dropdown Aimpart
-do
-    local drop = Instance.new("TextButton", pageAimbot)
-    drop.Size = UDim2.new(1, -20, 0, 30)
-    drop.Text = "Aimpart: Head"
-    drop.BackgroundColor3 = Color3.fromRGB(120,0,0)
-    drop.TextColor3 = Color3.fromRGB(255,255,255)
+-- ESP
+addLabel(pageESP, "ESP (sem lógica ainda)", 20)
+addLabel(pageESP, "- Caixa no inimigo a 50m", 60)
+addLabel(pageESP, "- Caixa colorida", 100)
+addLabel(pageESP, "- Cor igual ao FOV", 140)
+addLabel(pageESP, "- Nome do player", 180)
+addLabel(pageESP, "- Distância", 220)
 
-    local c = Instance.new("UICorner", drop)
-    c.CornerRadius = UDim.new(0,4)
-
-    local open = false
-    local list = Instance.new("Frame", pageAimbot)
-    list.Size = UDim2.new(1, -20, 0, 60)
-    list.BackgroundColor3 = Color3.fromRGB(90,0,0)
-    list.Visible = false
-
-    local ll = Instance.new("UIListLayout", list)
-
-    local function opt(name)
-        local b = Instance.new("TextButton", list)
-        b.Size = UDim2.new(1,0,0,30)
-        b.BackgroundColor3 = Color3.fromRGB(120,0,0)
-        b.TextColor3 = Color3.fromRGB(255,255,255)
-        b.Text = name
-
-        b.MouseButton1Click:Connect(function()
-            drop.Text = "Aimpart: "..name
-            list.Visible = false
-            open = false
-        end)
-    end
-
-    opt("Head")
-    opt("Chest")
-
-    drop.MouseButton1Click:Connect(function()
-        open = not open
-        list.Visible = open
-    end)
-end
-
--- ======================================================================
--- ABA FOV
--- ======================================================================
-
-local listFov = Instance.new("UIListLayout", pageFOV)
-listFov.Padding = UDim.new(0,5)
-
-createToggle(pageFOV, "Enable FOV")
-
--- Slider de FOV
-do
-    local frame = Instance.new("Frame", pageFOV)
-    frame.Size = UDim2.new(1, -20, 0, 40)
-    frame.BackgroundTransparency = 1
-
-    local lbl = Instance.new("TextLabel", frame)
-    lbl.Size = UDim2.new(1,0,0.5,0)
-    lbl.BackgroundTransparency = 1
-    lbl.Text = "Tamanho do FOV"
-    lbl.TextColor3 = Color3.fromRGB(255,255,255)
-
-    local slider = Instance.new("Frame", frame)
-    slider.Size = UDim2.new(1,0,0.5,0)
-    slider.Position = UDim2.new(0,0,0.5,0)
-    slider.BackgroundColor3 = Color3.fromRGB(90,0,0)
-
-    local bar = Instance.new("Frame", slider)
-    bar.Size = UDim2.new(0.3,0,1,0)
-    bar.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-end
-
--- ======================================================================
--- ABA ESP
--- ======================================================================
-
-local listESP = Instance.new("UIListLayout", pageESP)
-listESP.Padding = UDim.new(0,5)
-
-createToggle(pageESP, "Enable ESP")
-createToggle(pageESP, "Enable Lines")
-createToggle(pageESP, "Enable Health Bar")
-createToggle(pageESP, "Enable Box")
-createToggle(pageESP, "Enable Fill Color")
-createToggle(pageESP, "Enable Name")
-createToggle(pageESP, "Enable Distance")
-createToggle(pageESP, "Enable Skeleton")
 
