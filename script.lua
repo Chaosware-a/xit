@@ -29,8 +29,8 @@ end)
 
 local ESPTab = Window:NewTab("ESP")
 
--- COLUNA ESQUERDA (ESP PRINCIPAIS)
-local ESPMain = ESPTab:NewSection("ESP Principais")
+-- COLUNA ESQUERDA
+local ESPMain = ESPTab:NewSection("Main")
 
 ESPMain:NewToggle("Enable ESP", "Ativa todo o ESP", function(v)
     espEnabled = v
@@ -60,12 +60,11 @@ ESPMain:NewToggle("Enable Lines", "Linhas do jogador até você", function(v)
     espLines = v
 end)
 
-ESPMain:NewToggle("Enable Health Bar", "Barra de vida", function(v)
+ESPMain:NewToggle("Health Bar", "Barra de vida", function(v)
     espHealthBar = v
 end)
 
-
--- COLUNA DIREITA (SETTINGS SEM ROLAR)
+-- COLUNA DIREITA
 local ESPSettings = ESPTab:NewSection("Settings")
 
 ESPSettings:NewSlider("Distance", "Distância máxima", 500, 50, function(v)
