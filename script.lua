@@ -1,344 +1,195 @@
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
-local Window = Library.CreateLib("Meu Painel", "DarkTheme")
-
--- ======================================
---              ABA AIMBOT
--- ======================================
-local AimbotTab = Window:NewTab("Aimbot")
-local AimbotSection = AimbotTab:NewSection("Configurações")
-
-local aimbotEnabled = false
-local smoothValue = 1
-local fovValue = 50
-
-AimbotSection:NewToggle("Aimbot", "Liga/Desliga o Aimbot", function(v)
-    aimbotEnabled = v
-end)
-
-AimbotSection:NewSlider("Aimbot Smooth", "Velocidade de mira", 10, 1, function(v)
-    smoothValue = v
-end)
-
-AimbotSection:NewSlider("Aimbot FOV", "Área do aimbot", 200, 1, function(v)
-    fovValue = v
-end)
-
--- =========================
--- ABA ESP (DUAS COLUNAS)
--- =========================
-
-local ESPTab = Window:NewTab("ESP")
-
--- COLUNA ESQUERDA
-local ESPMain = ESPTab:NewSection("Main")
-
-ESPMain:NewToggle("Enable ESP", "Ativa todo o ESP", function(v)
-    espEnabled = v
-end)
-
-ESPMain:NewToggle("Enable RGB", "ESP colorido animado", function(v)
-    espRGB = v
-end)
-
-ESPMain:NewToggle("Enable Box", "Caixa ao redor do player", function(v)
-    espBox = v
-end)
-
-ESPMain:NewToggle("Enable Name", "Mostrar nome", function(v)
-    espName = v
-end)
-
-ESPMain:NewToggle("Enable Dist", "Mostrar distância", function(v)
-    espDist = v
-end)
-
-ESPMain:NewToggle("Enable Skel", "Mostrar esqueleto", function(v)
-    espSkel = v
-end)
-
-ESPMain:NewToggle("Enable Lines", "Linhas do jogador até você", function(v)
-    espLines = v
-end)
-
-ESPMain:NewToggle("Health Bar", "Barra de vida", function(v)
-    espHealthBar = v
-end)
-
--- COLUNA DIREITA
-local ESPSettings = ESPTab:NewSection("Settings")
-
-ESPSettings:NewSlider("Distance", "Distância máxima", 500, 50, function(v)
-    espDistance = v
-end)
-
-ESPSettings:NewSlider("Text Size", "Tamanho do texto", 20, 8, function(v)
-    espTextSize = v
-end)
-
--- CORES
-ESPSettings:NewColorPicker("Name Color", "Cor do nome", Color3.fromRGB(255,255,255), function(v)
-    espNameColor = v
-end)
-
-ESPSettings:NewColorPicker("Dist Color", "Cor da distância", Color3.fromRGB(255,255,255), function(v)
-    espDistColor = v
-end)
-
-ESPSettings:NewColorPicker("Box Color", "Cor da caixa", Color3.fromRGB(255,255,255), function(v)
-    espBoxColor = v
-end)
-
-ESPSettings:NewColorPicker("Fill Color", "Cor do preenchimento", Color3.fromRGB(255,0,0), function(v)
-    espFillColor = v
-end)
-
-ESPSettings:NewColorPicker("Skel Color", "Cor do esqueleto", Color3.fromRGB(0,255,255), function(v)
-    espSkelColor = v
-end)
-
-ESPSettings:NewColorPicker("Icon Color", "Cor dos ícones", Color3.fromRGB(255,255,0), function(v)
-    espIconColor = v
-end)
-
-ESPSettings:NewColorPicker("Lines Color", "Cor das linhas", Color3.fromRGB(255,255,255), function(v)
-    espLinesColor = v
-end)
-
--- ======================================
---              ABA NO RECOIL
--- ======================================
-local NoRecoilTab = Window:NewTab("Armas")
-local NoRecoilSection = NoRecoilTab:NewSection("Configurações")
-
-local noRecoil = false
-
-NoRecoilSection:NewToggle("No Recoil", "Remove o recuo da arma", function(v)
-    noRecoil = v
-end)
-
-print("Painel carregado com sucesso!")
-
-
-
-
--- =========================================================
--- VARIÁVEIS DO SEU PAINEL (ATUALIZADAS A CADA MUDANÇA)
--- =========================================================
-
--- ESP STATES
-espEnabled = espEnabled or false
-espRGB = espRGB or false
-espBox = espBox or false
-espName = espName or false
-espDist = espDist or false
-espSkel = espSkel or false
-espLines = espLines or false
-espHealthBar = espHealthBar or false
-
--- SETTINGS
-espDistance = espDistance or 500
-espTextSize = espTextSize or 16
-
--- COLORS
-espNameColor = espNameColor or Color3.fromRGB(255,255,255)
-espDistColor = espDistColor or Color3.fromRGB(255,255,255)
-espBoxColor = espBoxColor or Color3.fromRGB(255,255,255)
-espFillColor = espFillColor or Color3.fromRGB(255,0,0)
-espSkelColor = espSkelColor or Color3.fromRGB(0,255,255)
-espLinesColor = espLinesColor or Color3.fromRGB(255,255,255)
-
--- =========================================================
--- SISTEMA DE ESP
--- =========================================================
+--///////////////////////////////////////////////////////
+--/////     S K I L L X I T   M E N U   1 . 0       /////
+--/////   TUDO DENTRO DO PAINEL EM 1 LOCALSCRIPT   /////
+--///////////////////////////////////////////////////////
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
--- Criar ESP folder
-local ESPFolder = Instance.new("Folder", game.CoreGui)
-ESPFolder.Name = "ESP_SYSTEM"
+---------------------------------------------------------
+-- PAINEL SKILLXIT
+---------------------------------------------------------
 
--- Criar objeto de ESP por player
-function CreateESP(plr)
-    if plr == LocalPlayer then return end
+local gui = script.Parent
+gui.ResetOnSpawn = false
+
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0, 260, 0, 350)
+frame.Position = UDim2.new(0.02, 0, 0.25, 0)
+frame.BackgroundColor3 = Color3.fromRGB(20,20,20)
+frame.BorderSizePixel = 0
+
+local corner = Instance.new("UICorner", frame)
+corner.CornerRadius = UDim.new(0, 12)
+
+-- fundo animado / partículas
+local particle = Instance.new("ImageLabel", frame)
+particle.Size = UDim2.new(1,0,1,0)
+particle.Image = "rbxassetid://241837157"
+particle.ImageTransparency = 0.85
+particle.BackgroundTransparency = 1
+
+RunService.RenderStepped:Connect(function(dt)
+    particle.Rotation += dt * 10
+end)
+
+---------------------------------------------------------
+-- BOTÕES DO PAINEL
+---------------------------------------------------------
+
+local function createButton(text, y)
+    local b = Instance.new("TextButton", frame)
+    b.Size = UDim2.new(1, -20, 0, 35)
+    b.Position = UDim2.new(0, 10, 0, y)
+    b.BackgroundColor3 = Color3.fromRGB(35,35,35)
+    b.Text = text
+    b.TextColor3 = Color3.new(1,1,1)
+    b.BorderSizePixel = 0
+
+    local c = Instance.new("UICorner", b)
+    c.CornerRadius = UDim.new(0, 8)
+
+    return b
+end
+
+local btnAimbot = createButton("Aimbot: OFF", 10)
+local btnESP = createButton("ESP: OFF", 55)
+local btnMode = createButton("Mode: LOOK", 100)
+local btnBone = createButton("Bone: HEAD", 145)
+
+---------------------------------------------------------
+-- SISTEMA DE ESTADOS
+---------------------------------------------------------
+
+local aimbotEnabled = false
+local espEnabled = false
+local aimMode = "LOOK"    -- LOOK ou SHOOT
+local aimBone = "Head"    -- Head ou HumanoidRootPart
+local isShooting = false
+
+btnAimbot.MouseButton1Click:Connect(function()
+    aimbotEnabled = not aimbotEnabled
+    btnAimbot.Text = "Aimbot: " .. (aimbotEnabled and "ON" or "OFF")
+end)
+
+btnESP.MouseButton1Click:Connect(function()
+    espEnabled = not espEnabled
+    btnESP.Text = "ESP: " .. (espEnabled and "ON" or "OFF")
+end)
+
+btnMode.MouseButton1Click:Connect(function()
+    aimMode = (aimMode == "LOOK") and "SHOOT" or "LOOK"
+    btnMode.Text = "Mode: " .. aimMode
+end)
+
+btnBone.MouseButton1Click:Connect(function()
+    aimBone = (aimBone == "Head") and "HumanoidRootPart" or "Head"
+    btnBone.Text = "Bone: " .. aimBone
+end)
+
+UIS.InputBegan:Connect(function(k)
+    if k.UserInputType == Enum.UserInputType.MouseButton1 then
+        isShooting = true
+    end
+end)
+
+UIS.InputEnded:Connect(function(k)
+    if k.UserInputType == Enum.UserInputType.MouseButton1 then
+        isShooting = false
+    end
+end)
+
+---------------------------------------------------------
+-- ESP COMPLETO
+---------------------------------------------------------
+
+local function createESP(player)
+    if player == LocalPlayer then return end
 
     local box = Drawing.new("Square")
-    box.Visible = false
-    box.Thickness = 2
     box.Filled = false
+    box.Thickness = 2
+    box.Color = Color3.fromRGB(0,255,255)
+    box.Visible = false
 
-    local fill = Drawing.new("Square")
-    fill.Visible = false
-    fill.Filled = true
+    local text = Drawing.new("Text")
+    text.Size = 14
+    text.Center = true
+    text.Color = Color3.new(1,1,1)
+    text.Visible = false
 
-    local nameText = Drawing.new("Text")
-    nameText.Visible = false
-    nameText.Center = true
-
-    local distText = Drawing.new("Text")
-    distText.Visible = false
-    distText.Center = true
-
-    local line = Drawing.new("Line")
-    line.Visible = false
-
-    local skeletonParts = {}
-
-    return {
-        Box = box,
-        Fill = fill,
-        Name = nameText,
-        Dist = distText,
-        Line = line,
-        Skel = skeletonParts,
-    }
-end
-
-local ESPObjects = {}
-
-Players.PlayerAdded:Connect(function(plr)
-    ESPObjects[plr] = CreateESP(plr)
-end)
-
-Players.PlayerRemoving:Connect(function(plr)
-    if ESPObjects[plr] then
-        for _, v in pairs(ESPObjects[plr]) do
-            if typeof(v) == "table" then
-                for _, d in ipairs(v) do d:Remove() end
-            elseif v.Remove then
-                v:Remove()
-            end
+    RunService.RenderStepped:Connect(function()
+        if not espEnabled then
+            box.Visible = false
+            text.Visible = false
+            return
         end
-        ESPObjects[plr] = nil
-    end
-end)
 
--- Criar ESP para jogadores já existentes
-for _, plr in ipairs(Players:GetPlayers()) do
-    if plr ~= LocalPlayer then
-        ESPObjects[plr] = CreateESP(plr)
-    end
+        local char = player.Character
+        if not char or not char:FindFirstChild("HumanoidRootPart") then
+            box.Visible = false
+            text.Visible = false
+            return
+        end
+
+        local hrp = char.HumanoidRootPart
+        local pos, onscreen = Camera:WorldToViewportPoint(hrp.Position)
+
+        if onscreen then
+            local distance = (Camera.CFrame.Position - hrp.Position).Magnitude
+            local size = math.clamp(3000 / distance, 20, 120)
+
+            box.Size = Vector2.new(size, size * 1.4)
+            box.Position = Vector2.new(pos.X - size/2, pos.Y - size)
+            box.Visible = true
+
+            text.Text = math.floor(distance) .. "m"
+            text.Position = Vector2.new(pos.X, pos.Y + size/1.4)
+            text.Visible = true
+        else
+            box.Visible = false
+            text.Visible = false
+        end
+    end)
 end
 
--- =========================================================
--- LOOP PRINCIPAL DO ESP
--- =========================================================
+for _, p in ipairs(Players:GetPlayers()) do
+    createESP(p)
+end
+
+Players.PlayerAdded:Connect(createESP)
+
+---------------------------------------------------------
+-- AIMBOT
+---------------------------------------------------------
 
 RunService.RenderStepped:Connect(function()
-    if not espEnabled then
-        -- Esconder tudo
-        for _, data in pairs(ESPObjects) do
-            for _, d in pairs(data) do
-                if typeof(d) == "table" then
-                    for _, sk in ipairs(d) do sk.Visible = false end
-                elseif d.Visible ~= nil then
-                    d.Visible = false
+    if not aimbotEnabled then return end
+    if aimMode == "SHOOT" and not isShooting then return end
+
+    local closest = nil
+    local closestDist = 9999
+    local mousePos = UIS:GetMouseLocation()
+
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild(aimBone) then
+            local part = p.Character[aimBone]
+            local pos, vis = Camera:WorldToViewportPoint(part.Position)
+
+            if vis then
+                local d = (Vector2.new(pos.X, pos.Y) - mousePos).Magnitude
+                if d < closestDist then
+                    closestDist = d
+                    closest = part
                 end
             end
         end
-        return
     end
 
-    for plr, data in pairs(ESPObjects) do
-        local char = plr.Character
-        local hrp = char and char:FindFirstChild("HumanoidRootPart")
-        local humanoid = char and char:FindFirstChild("Humanoid")
-
-        if not (char and hrp and humanoid) then
-            for _, d in pairs(data) do
-                if typeof(d) == "table" then
-                    for _, sk in ipairs(d) do sk.Visible = false end
-                elseif d.Visible ~= nil then
-                    d.Visible = false
-                end
-            end
-            continue
-        end
-
-        -- Distância
-        local dist = (hrp.Position - Camera.CFrame.Position).Magnitude
-        if dist > espDistance then
-            for _, d in pairs(data) do
-                if typeof(d) == "table" then
-                    for _, sk in ipairs(d) do sk.Visible = false end
-                elseif d.Visible ~= nil then
-                    d.Visible = false
-                end
-            end
-            continue
-        end
-
-        -- SCREEN POSITION
-        local pos, onScreen = Camera:WorldToViewportPoint(hrp.Position)
-        if not onScreen then continue end
-
-        -- ============================================
-        -- BOX + FILL
-        -- ============================================
-        if espBox or espRGB then
-            data.Box.Visible = true
-            data.Fill.Visible = true
-
-            local size = Vector2.new(1000 / dist, 1500 / dist)
-            data.Box.Size = size
-            data.Fill.Size = size
-            data.Box.Position = Vector2.new(pos.X - size.X/2, pos.Y - size.Y/2)
-            data.Fill.Position = data.Box.Position
-
-            data.Box.Color = espRGB and Color3.fromHSV(tick() % 1, 1, 1) or espBoxColor
-            data.Fill.Color = espFillColor
-            data.Fill.Transparency = 0.5
-        else
-            data.Box.Visible = false
-            data.Fill.Visible = false
-        end
-
-        -- ============================================
-        -- NOME
-        -- ============================================
-        if espName then
-            data.Name.Visible = true
-            data.Name.Text = plr.Name
-            data.Name.Size = espTextSize
-            data.Name.Color = espNameColor
-            data.Name.Position = Vector2.new(pos.X, pos.Y - 40)
-        else
-            data.Name.Visible = false
-        end
-
-        -- ============================================
-        -- DISTÂNCIA
-        -- ============================================
-        if espDist then
-            data.Dist.Visible = true
-            data.Dist.Text = math.floor(dist) .. "m"
-            data.Dist.Size = espTextSize
-            data.Dist.Color = espDistColor
-            data.Dist.Position = Vector2.new(pos.X, pos.Y + 40)
-        else
-            data.Dist.Visible = false
-        end
-
-        -- ============================================
-        -- LINES
-        -- ============================================
-        if espLines then
-            data.Line.Visible = true
-            data.Line.Color = espLinesColor
-            data.Line.From = Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y)
-            data.Line.To = Vector2.new(pos.X, pos.Y)
-        else
-            data.Line.Visible = false
-        end
-
-        -- ============================================
-        -- SKELETON (SIMPLIFICADO)
-        -- ============================================
-        if espSkel then
-            -- (versão simples: ligar cabeça ao torso e torso às pernas)
-            -- posso fazer COMPLETO se você quiser
-        end
+    if closest then
+        Camera.CFrame = CFrame.new(Camera.CFrame.Position, closest.Position)
     end
 end)
