@@ -1,195 +1,120 @@
---///////////////////////////////////////////////////////
---/////     S K I L L X I T   M E N U   1 . 0       /////
---/////   TUDO DENTRO DO PAINEL EM 1 LOCALSCRIPT   /////
---///////////////////////////////////////////////////////
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+local Window = Library.CreateLib("SkillXIT", "DarkTheme")
 
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local UIS = game:GetService("UserInputService")
-local LocalPlayer = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
+----------------------------------------------------
+--                 ABA AIMBOT
+----------------------------------------------------
 
----------------------------------------------------------
--- PAINEL SKILLXIT
----------------------------------------------------------
-
-local gui = script.Parent
-gui.ResetOnSpawn = false
-
-local frame = Instance.new("Frame", gui)
-frame.Size = UDim2.new(0, 260, 0, 350)
-frame.Position = UDim2.new(0.02, 0, 0.25, 0)
-frame.BackgroundColor3 = Color3.fromRGB(20,20,20)
-frame.BorderSizePixel = 0
-
-local corner = Instance.new("UICorner", frame)
-corner.CornerRadius = UDim.new(0, 12)
-
--- fundo animado / partículas
-local particle = Instance.new("ImageLabel", frame)
-particle.Size = UDim2.new(1,0,1,0)
-particle.Image = "rbxassetid://241837157"
-particle.ImageTransparency = 0.85
-particle.BackgroundTransparency = 1
-
-RunService.RenderStepped:Connect(function(dt)
-    particle.Rotation += dt * 10
-end)
-
----------------------------------------------------------
--- BOTÕES DO PAINEL
----------------------------------------------------------
-
-local function createButton(text, y)
-    local b = Instance.new("TextButton", frame)
-    b.Size = UDim2.new(1, -20, 0, 35)
-    b.Position = UDim2.new(0, 10, 0, y)
-    b.BackgroundColor3 = Color3.fromRGB(35,35,35)
-    b.Text = text
-    b.TextColor3 = Color3.new(1,1,1)
-    b.BorderSizePixel = 0
-
-    local c = Instance.new("UICorner", b)
-    c.CornerRadius = UDim.new(0, 8)
-
-    return b
-end
-
-local btnAimbot = createButton("Aimbot: OFF", 10)
-local btnESP = createButton("ESP: OFF", 55)
-local btnMode = createButton("Mode: LOOK", 100)
-local btnBone = createButton("Bone: HEAD", 145)
-
----------------------------------------------------------
--- SISTEMA DE ESTADOS
----------------------------------------------------------
+local AimbotTab = Window:NewTab("Aimbot")
+local AimbotSection = AimbotTab:NewSection("Configurações")
 
 local aimbotEnabled = false
-local espEnabled = false
-local aimMode = "LOOK"    -- LOOK ou SHOOT
-local aimBone = "Head"    -- Head ou HumanoidRootPart
-local isShooting = false
+local smoothValue = 1
+local fovValue = 50
 
-btnAimbot.MouseButton1Click:Connect(function()
-    aimbotEnabled = not aimbotEnabled
-    btnAimbot.Text = "Aimbot: " .. (aimbotEnabled and "ON" or "OFF")
+AimbotSection:NewToggle("Enable Aimbot", "Liga / Desliga", function(v)
+    aimbotEnabled = v
 end)
 
-btnESP.MouseButton1Click:Connect(function()
-    espEnabled = not espEnabled
-    btnESP.Text = "ESP: " .. (espEnabled and "ON" or "OFF")
+AimbotSection:NewSlider("Aimbot Smooth", "Velocidade de suavização", 10, 1, function(v)
+    smoothValue = v
 end)
 
-btnMode.MouseButton1Click:Connect(function()
-    aimMode = (aimMode == "LOOK") and "SHOOT" or "LOOK"
-    btnMode.Text = "Mode: " .. aimMode
+AimbotSection:NewSlider("Aimbot FOV", "Área que o aimbot trava", 200, 1, function(v)
+    fovValue = v
 end)
 
-btnBone.MouseButton1Click:Connect(function()
-    aimBone = (aimBone == "Head") and "HumanoidRootPart" or "Head"
-    btnBone.Text = "Bone: " .. aimBone
+AimbotSection:NewDropdown("Bone", "Onde mirar", {"Head","UpperTorso","HumanoidRootPart"}, function(v)
+    aimbotBone = v
 end)
 
-UIS.InputBegan:Connect(function(k)
-    if k.UserInputType == Enum.UserInputType.MouseButton1 then
-        isShooting = true
-    end
+AimbotSection:NewDropdown("Modo", "Quando mirar", {"Sempre","Ao Atirar","Ao Olhar"}, function(v)
+    aimbotMode = v
 end)
 
-UIS.InputEnded:Connect(function(k)
-    if k.UserInputType == Enum.UserInputType.MouseButton1 then
-        isShooting = false
-    end
+
+----------------------------------------------------
+--                 ABA ESP
+----------------------------------------------------
+
+local ESPTab = Window:NewTab("ESP")
+
+-- COLUNA 1: Principal
+local ESPMain = ESPTab:NewSection("Main")
+
+ESPMain:NewToggle("Enable ESP", "Liga o ESP", function(v)
+    espEnabled = v
 end)
 
----------------------------------------------------------
--- ESP COMPLETO
----------------------------------------------------------
-
-local function createESP(player)
-    if player == LocalPlayer then return end
-
-    local box = Drawing.new("Square")
-    box.Filled = false
-    box.Thickness = 2
-    box.Color = Color3.fromRGB(0,255,255)
-    box.Visible = false
-
-    local text = Drawing.new("Text")
-    text.Size = 14
-    text.Center = true
-    text.Color = Color3.new(1,1,1)
-    text.Visible = false
-
-    RunService.RenderStepped:Connect(function()
-        if not espEnabled then
-            box.Visible = false
-            text.Visible = false
-            return
-        end
-
-        local char = player.Character
-        if not char or not char:FindFirstChild("HumanoidRootPart") then
-            box.Visible = false
-            text.Visible = false
-            return
-        end
-
-        local hrp = char.HumanoidRootPart
-        local pos, onscreen = Camera:WorldToViewportPoint(hrp.Position)
-
-        if onscreen then
-            local distance = (Camera.CFrame.Position - hrp.Position).Magnitude
-            local size = math.clamp(3000 / distance, 20, 120)
-
-            box.Size = Vector2.new(size, size * 1.4)
-            box.Position = Vector2.new(pos.X - size/2, pos.Y - size)
-            box.Visible = true
-
-            text.Text = math.floor(distance) .. "m"
-            text.Position = Vector2.new(pos.X, pos.Y + size/1.4)
-            text.Visible = true
-        else
-            box.Visible = false
-            text.Visible = false
-        end
-    end)
-end
-
-for _, p in ipairs(Players:GetPlayers()) do
-    createESP(p)
-end
-
-Players.PlayerAdded:Connect(createESP)
-
----------------------------------------------------------
--- AIMBOT
----------------------------------------------------------
-
-RunService.RenderStepped:Connect(function()
-    if not aimbotEnabled then return end
-    if aimMode == "SHOOT" and not isShooting then return end
-
-    local closest = nil
-    local closestDist = 9999
-    local mousePos = UIS:GetMouseLocation()
-
-    for _, p in ipairs(Players:GetPlayers()) do
-        if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild(aimBone) then
-            local part = p.Character[aimBone]
-            local pos, vis = Camera:WorldToViewportPoint(part.Position)
-
-            if vis then
-                local d = (Vector2.new(pos.X, pos.Y) - mousePos).Magnitude
-                if d < closestDist then
-                    closestDist = d
-                    closest = part
-                end
-            end
-        end
-    end
-
-    if closest then
-        Camera.CFrame = CFrame.new(Camera.CFrame.Position, closest.Position)
-    end
+ESPMain:NewToggle("Enable RGB", "RGB animado", function(v)
+    espRGB = v
 end)
+
+ESPMain:NewToggle("Enable Box", "Caixa ao redor", function(v)
+    espBox = v
+end)
+
+ESPMain:NewToggle("Enable Name", "Mostrar nome", function(v)
+    espName = v
+end)
+
+ESPMain:NewToggle("Enable Distance", "Mostrar distância", function(v)
+    espDist = v
+end)
+
+ESPMain:NewToggle("Enable Skeleton", "Mostrar esqueleto", function(v)
+    espSkel = v
+end)
+
+ESPMain:NewToggle("Enable Lines", "Linhas até o player", function(v)
+    espLines = v
+end)
+
+ESPMain:NewToggle("Enable Health Bar", "Barra de vida", function(v)
+    espHealthBar = v
+end)
+
+
+-- COLUNA 2: Configurações
+local ESPSettings = ESPTab:NewSection("Settings")
+
+ESPSettings:NewSlider("Distance", "Distância máxima", 500, 50, function(v)
+    espDistance = v
+end)
+
+ESPSettings:NewSlider("Text Size", "Tamanho do texto", 20, 8, function(v)
+    espTextSize = v
+end)
+
+-- CORES
+
+ESPSettings:NewColorPicker("Name Color", "Cor do nome", Color3.fromRGB(255,255,255), function(v)
+    espNameColor = v
+end)
+
+ESPSettings:NewColorPicker("Distance Color", "Cor da distância", Color3.fromRGB(255,255,255), function(v)
+    espDistColor = v
+end)
+
+ESPSettings:NewColorPicker("Box Color", "Cor da caixa", Color3.fromRGB(255,255,255), function(v)
+    espBoxColor = v
+end)
+
+ESPSettings:NewColorPicker("Fill Color", "Cor do preenchimento", Color3.fromRGB(255,0,0), function(v)
+    espFillColor = v
+end)
+
+ESPSettings:NewColorPicker("Skeleton Color", "Cor do esqueleto", Color3.fromRGB(0,255,255), function(v)
+    espSkelColor = v
+end)
+
+ESPSettings:NewColorPicker("Icon Color", "Cor do ícone", Color3.fromRGB(255,255,0), function(v)
+    espIconColor = v
+end)
+
+ESPSettings:NewColorPicker("Lines Color", "Cor das linhas", Color3.fromRGB(255,255,255), function(v)
+    espLinesColor = v
+end)
+
+
+print("Painel SkillXIT carregado com sucesso!")
